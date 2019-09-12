@@ -1,6 +1,6 @@
-
+function makeResponsive() {
 //// set the dimensions and margins of the graph
-var svgWidth = 800;
+var svgWidth =660;
 var svgHeight = 500;
 var margin = {
  top: 20,
@@ -27,20 +27,22 @@ d3.csv("assets/data/data.csv")
 
    // Step 1: Parse Data/Cast as numbers
    // ==============================
-   //data.forEach(function(dd) {
-    // dd.poverty = +dd.poverty;
-     //dd.healthcare = +dd.healthcare;
+   data.forEach(function(data) {
+     data.poverty = +data.poverty;
+     data.healthcare = +data.healthcare;
+   });
 
    // Step 2: Create scale functions
    // ==============================
    var xLinearScale = d3.scaleLinear()
      //.domain([d3.extent(data, d => d.poverty)])
-     .domain([8,24])
+     .domain([d3.min(data, d=>d.poverty)*0.8,
+      d3.max(data, d => d.poverty)*1.2])
      .range([0, width]);
 
    var yLinearScale = d3.scaleLinear()
     // .domain([d3.extent(data, d => d.healthcare)])
-     .domain([4,22])
+     .domain([0, d3.max(data, d => d.healthcare)*1.2])
      .range([height, 0]);
 
 
@@ -89,14 +91,16 @@ d3.csv("assets/data/data.csv")
 
    // Step 8: Create event listeners to display and hide the tooltip
    // ==============================
-   circlesGroup.on("click", function(data) {
-     toolTip.show(data, this);
-   })
-     // onmouseout event
-     .on("mouseout", function(data, index) {
-       toolTip.hide(data);
-     });
-
+   // Create "mouseover" event listener to display tooltip
+    // ==============================
+    circlesGroup.on("mouseover", function(data) {
+      toolTip.show(data, this);
+    })
+      // Create "mouseout" event listener to hide tooltip
+      .on("mouseout", function(data, index) {
+        toolTip.hide(data);
+      });
+      
    // Create axes labels
    chartGroup.append("text")
      .attr("transform", "rotate(-90)")
@@ -127,5 +131,10 @@ d3.csv("assets/data/data.csv")
         .text(function(data) {
             return data.abbr
         })
-    .style("font-color", "white" )
+    
    })
+  }
+  // When the browser loads, makeResponsive() is called.
+  makeResponsive();
+// When the browser window is resized, makeResponsive() is called.
+  d3.select(window).on("resize", makeResponsive);
